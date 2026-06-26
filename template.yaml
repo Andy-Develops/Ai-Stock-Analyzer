@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AI Stock Analyzer - Serverless Backend
+
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 512
+    Runtime: python3.9
+    Environment:
+      Variables:
+        OPENAI_API_KEY: !Ref OpenAIKey
+
+Parameters:
+  OpenAIKey:
+    Type: String
+    Description: OpenAI API Key
+    NoEcho: true
+
+Resources:
+  # API Gateway
+  StockApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type'"
+        AllowOrigin: "'*'"
+
+  # Lambda 1: Analyze Stock
+  AnalyzeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: lambda.analyze.handler.lambda_handler
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref StockApi
+            Path: /analyze
+            Method: post
+
+  # Lambda 2: News + Sentiment
+  NewsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: lambda.news.handler.lambda_handler
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref StockApi
+            Path: /news
+            Method: post
+
+  # Lambda 3: AI Summary
+  AiSummaryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: lambda.ai-summary.handler.lambda_handler
+      Timeout: 120
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref StockApi
+            Path: /ai-summary
+            Method: post
+
+  # Lambda 4: Market Outlook
+  MarketOutlookFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: lambda.market-outlook.handler.lambda_handler
+      Timeout: 120
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref StockApi
+            Path: /market-outlook
+            Method: post
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway URL
+    Value: !Sub "https://${StockApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
