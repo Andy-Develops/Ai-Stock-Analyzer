@@ -1,0 +1,11 @@
+venv/
+frontend/
+node_modules/
+.git/
+.aws-sam/
+notebooks/
+tests/
+__pycache__/
+*.pyc
+.env
+sam-installation/

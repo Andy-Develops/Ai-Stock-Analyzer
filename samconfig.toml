@@ -1,0 +1,13 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "ai-stock-analyzer"
+resolve_s3 = true
+s3_prefix = "ai-stock-analyzer"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+image_repositories = ["AnalyzeFunction=182643219490.dkr.ecr.us-east-1.amazonaws.com/aistockanalyzer59c8c4a1/analyzefunctiond5510619repo", "NewsFunction=182643219490.dkr.ecr.us-east-1.amazonaws.com/aistockanalyzer59c8c4a1/newsfunction900ffce3repo", "AiSummaryFunction=182643219490.dkr.ecr.us-east-1.amazonaws.com/aistockanalyzer59c8c4a1/aisummaryfunction7fdbed3erepo", "MarketOutlookFunction=182643219490.dkr.ecr.us-east-1.amazonaws.com/aistockanalyzer59c8c4a1/marketoutlookfunction607a32ebrepo"]
+
+[default.global.parameters]
+region = "us-east-1"

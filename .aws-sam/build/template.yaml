@@ -1,105 +1,115 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: AI Stock Analyzer - Serverless Backend (Docker)
-
 Globals:
   Function:
     Timeout: 120
     MemorySize: 1024
     Environment:
       Variables:
-        OPENAI_API_KEY: !Ref OpenAIKey
-
+        OPENAI_API_KEY:
+          Ref: OpenAIKey
 Parameters:
   OpenAIKey:
     Type: String
     Description: OpenAI API Key
-    Default: "none"
+    Default: none
     NoEcho: true
-
 Resources:
   StockApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: prod
       Cors:
-        AllowMethods: "'GET,POST,OPTIONS'"
-        AllowHeaders: "'Content-Type'"
-        AllowOrigin: "'*'"
-
+        AllowMethods: '''GET,POST,OPTIONS'''
+        AllowHeaders: '''Content-Type'''
+        AllowOrigin: '''*'''
   AnalyzeFunction:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
       ImageConfig:
-        Command: ["lambda.analyze.handler.lambda_handler"]
+        Command:
+        - lambda.analyze.handler.lambda_handler
       Events:
         Api:
           Type: Api
           Properties:
-            RestApiId: !Ref StockApi
+            RestApiId:
+              Ref: StockApi
             Path: /analyze
             Method: post
+      ImageUri: analyzefunction:analyze
     Metadata:
+      DockerContext: /home/ec2-user/ai-stock-analyzer
       DockerTag: analyze
-      DockerContext: .
       Dockerfile: Dockerfile
-
+      SamResourceId: AnalyzeFunction
   NewsFunction:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
       ImageConfig:
-        Command: ["lambda.news.handler.lambda_handler"]
+        Command:
+        - lambda.news.handler.lambda_handler
       Events:
         Api:
           Type: Api
           Properties:
-            RestApiId: !Ref StockApi
+            RestApiId:
+              Ref: StockApi
             Path: /news
             Method: post
+      ImageUri: newsfunction:news
     Metadata:
+      DockerContext: /home/ec2-user/ai-stock-analyzer
       DockerTag: news
-      DockerContext: .
       Dockerfile: Dockerfile
-
+      SamResourceId: NewsFunction
   AiSummaryFunction:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
       ImageConfig:
-        Command: ["lambda.ai-summary.handler.lambda_handler"]
+        Command:
+        - lambda.ai-summary.handler.lambda_handler
       Events:
         Api:
           Type: Api
           Properties:
-            RestApiId: !Ref StockApi
+            RestApiId:
+              Ref: StockApi
             Path: /ai-summary
             Method: post
+      ImageUri: aisummaryfunction:ai-summary
     Metadata:
+      DockerContext: /home/ec2-user/ai-stock-analyzer
       DockerTag: ai-summary
-      DockerContext: .
       Dockerfile: Dockerfile
-
+      SamResourceId: AiSummaryFunction
   MarketOutlookFunction:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
       ImageConfig:
-        Command: ["lambda.market-outlook.handler.lambda_handler"]
+        Command:
+        - lambda.market-outlook.handler.lambda_handler
       Events:
         Api:
           Type: Api
           Properties:
-            RestApiId: !Ref StockApi
+            RestApiId:
+              Ref: StockApi
             Path: /market-outlook
             Method: post
+      ImageUri: marketoutlookfunction:market-outlook
     Metadata:
+      DockerContext: /home/ec2-user/ai-stock-analyzer
       DockerTag: market-outlook
-      DockerContext: .
       Dockerfile: Dockerfile
-
+      SamResourceId: MarketOutlookFunction
 Outputs:
   ApiUrl:
     Description: API Gateway URL
-    Value: !Sub "https://${StockApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+    Value:
+      Fn::Sub: https://${StockApi}.execute-api.${AWS::Region}.amazonaws.com/prod

@@ -3,7 +3,7 @@ import axios from 'axios';
 import './App.css';
 
 // UPDATE THIS after you deploy API Gateway
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+const API_URL = process.env.REACT_APP_API_URL || "https://9xt1z2hp06.execute-api.us-east-1.amazonaws.com/prod";
 
 function App() {
   const [ticker, setTicker] = useState("AAPL");
